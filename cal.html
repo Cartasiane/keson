@@ -28,9 +28,14 @@
       }
       .calendar-header {
         display: flex;
-        justify-content: flex-end;
+        justify-content: space-between;
+        align-items: center;
         padding: 10px;
         border-bottom: 1px solid rgba(255,255,255,.08);
+      }
+      .calendar-title {
+        margin: 0;
+        font-size: 1rem;
       }
       .owc-frame { flex: 1; width: 100%; border: 0; background: #0b0f14; }
       .desktop-info-btn {
@@ -147,6 +152,7 @@
     <!-- Desktop/Tablet calendar -->
       <section class="calendar-card">
         <div class="calendar-header">
+          <h1 class="calendar-title">Kalendrier</h1>
           <button type="button" class="desktop-info-btn" id="desktop-info-btn">Config PC</button>
         </div>
         <iframe

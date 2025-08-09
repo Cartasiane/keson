@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Keson — Calendrier</title>
+  <style>
+    :root { color-scheme: dark; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: #0b0f14;
+      color: #e6e6e6;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    /* Desktop / tablet */
+    .page { padding: 10px; height: 100%; box-sizing: border-box; }
+    .calendar-card {
+      height: 100%;
+      background: #0b0f14;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 8px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.35);
+      overflow: hidden;
+    }
+    .owc-frame { width: 100%; height: 100%; border: 0; background: #0b0f14; }
+
+    /* Mobile helpers */
+    .mobile-only { display: none; }
+    @media (max-width: 640px) {
+      body { overflow-y: auto; }
+      .calendar-card { display: none; }
+      .mobile-only { display: block; padding: 10px; }
+
+      /* Prevent overflow everywhere in the mobile section */
+      .mobile-only, .mobile-only * , .mobile-only *::before, .mobile-only *::after { box-sizing: border-box; }
+
+      .box {
+        border: 1px solid rgba(255,255,255,.14);
+        border-radius: 12px;
+        background: #0e141b;
+        padding: 12px;
+        margin-bottom: 12px;
+        overflow-wrap: anywhere;
+      }
+      h2 { font-size: 1.05rem; margin: .1rem 0 .6rem; }
+
+      /* Buttons never overflow: full-width grid that can shrink */
+      .btn-row { display: grid; grid-template-columns: minmax(0,1fr); gap: 8px; width: 100%; }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;          /* allow shrinking inside grid */
+        min-height: 44px;
+        padding: .75rem 1rem;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,.16);
+        background: #0e141b;
+        color: #e6e6e6;
+        text-decoration: none;
+        text-align: center;
+        line-height: 1.2;
+        white-space: normal;           /* allow wrapping */
+        word-break: break-word;        /* break long words */
+        overflow: hidden;              /* never spill */
+      }
+
+      /* Copy rows: label + field + copy button */
+      .copy-label { font-size: .85rem; opacity: .7; margin: 6px 0 2px; display: block; }
+      .copy-row {
+        display: grid;
+        grid-template-columns: minmax(0,1fr) auto; /* field can shrink */
+        gap: 8px;
+        margin: 0 0 12px;
+        align-items: stretch;
+      }
+      .copy-row > * { min-width: 0; } /* grid children can shrink */
+
+      .field {
+        margin: 0;
+        font-size: .95rem;
+        background: #0b0f14;
+        border: 1px solid rgba(255,255,255,.16);
+        border-radius: 10px;
+        padding: .65rem .75rem;
+        line-height: 1.3;
+        overflow: hidden;              /* hide long values */
+        text-overflow: ellipsis;       /* show … when too long */
+        white-space: nowrap;           /* keep in one line */
+      }
+      .copy-btn {
+        min-width: 96px;
+        padding: .65rem .75rem;
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,.16);
+        background: #121923;
+        color: #e6e6e6;
+      }
+      .hint { opacity: .85; font-size: .95rem; }
+      .small { font-size: .9rem; opacity: .8; }
+      .ok {
+        margin-top: 6px;
+        font-size: .9rem;
+        color: #9be28f;
+        display: none;
+      }
+    }
+
+    /* Reduce tap highlight on mobile */
+    a, button { -webkit-tap-highlight-color: transparent; }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <!-- Desktop/Tablet calendar -->
+    <section class="calendar-card">
+      <iframe
+        class="owc-frame"
+        src="https://open-web-calendar.hosted.quelltext.eu/calendar.html?specification_url=https%3A%2F%2Fkeson.acab.love%2Fowc.json%3Fv%3D8&url=https%3A%2F%2Fcal.keson.acab.love%2Fkeson%2F59727758-72c2-08cf-75dd-852c79fe3285%2F&language=fr&timezone=Europe%2FZurich&start_of_week=mo&tab=month&tabs=month&tabs=week&tabs=day&controls=previous&controls=next&controls=today&controls=date">
+      </iframe>
+    </section>
+
+    <!-- Mobile: helper UI -->
+    <section class="mobile-only">
+      <!-- ANDROID -->
+      <div class="box">
+        <h2>🤖 Android — DAVx⁵</h2>
+        <p class="small">Installez DAVx⁵ avant de continuer :</p>
+        <div class="btn-row" style="margin-bottom:12px">
+          <a class="btn" href="https://play.google.com/store/apps/details?id=at.bitfire.davdroid" target="_blank" rel="noopener">Obtenir DAVx⁵ (Play Store)</a>
+          <a class="btn" href="https://f-droid.org/packages/at.bitfire.davx5" target="_blank" rel="noopener">Obtenir DAVx⁵ (F-Droid)</a>
+        </div>
+
+        <p><strong>Ajouter (anonyme, lecture seule)</strong></p>
+        <div class="btn-row">
+          <a class="btn" href="davx5://cal.keson.acab.love/">Ouvrir dans DAVx⁵ — Anonyme</a>
+        </div>
+        <span class="copy-label">URL CalDAV anonyme</span>
+        <div class="copy-row" data-copy="https://cal.keson.acab.love/">
+          <div class="field">https://cal.keson.acab.love/</div>
+          <button class="copy-btn" type="button">Copier</button>
+          <div class="ok">Copié ✅</div>
+        </div>
+        <p class="hint">Dans DAVx⁵ : « Ajouter un compte » → <em>URL</em> ci-dessus. Laissez identifiants vides si l’accès anonyme est autorisé.</p>
+
+        <p style="margin-top:12px;"><strong>Ajouter (authentifié, lecture/écriture)</strong></p>
+        <div class="btn-row">
+          <a class="btn" href="davx5://cal.keson.acab.love/">Ouvrir dans DAVx⁵ — Auth (utilisateur : keson)</a>
+        </div>
+        <span class="copy-label">URL CalDAV</span>
+        <div class="copy-row" data-copy="https://cal.keson.acab.love/">
+          <div class="field">https://cal.keson.acab.love/</div>
+          <button class="copy-btn" type="button">Copier</button>
+          <div class="ok">Copié ✅</div>
+        </div>
+        <span class="copy-label">Utilisateur</span>
+        <div class="copy-row" data-copy="keson">
+          <div class="field">keson</div>
+          <button class="copy-btn" type="button">Copier</button>
+          <div class="ok">Copié ✅</div>
+        </div>
+        <p class="hint">Dans DAVx⁵ : « Connexion avec URL et nom d’utilisateur » → URL + utilisateur ci-dessus (+ votre mot de passe). Activez ensuite le calendrier :</p>
+        <span class="copy-label">Chemin du calendrier</span>
+        <div class="copy-row" data-copy="/keson/59727758-72c2-08cf-75dd-852c79fe3285/">
+          <div class="field">/keson/59727758-72c2-08cf-75dd-852c79fe3285/</div>
+          <button class="copy-btn" type="button">Copier</button>
+          <div class="ok">Copié ✅</div>
+        </div>
+      </div>
+
+      <!-- iOS -->
+      <div class="box">
+        <h2>🍎 iOS</h2>
+
+        <p><strong>Lecture seule (abonnement)</strong></p>
+        <div class="btn-row">
+          <a class="btn" href="webcal://cal.keson.acab.love/keson/59727758-72c2-08cf-75dd-852c79fe3285/?export">S’abonner dans Calendrier</a>
+        </div>
+        <span class="copy-label">URL webcal (abonnement)</span>
+        <div class="copy-row" data-copy="https://cal.keson.acab.love/keson/59727758-72c2-08cf-75dd-852c79fe3285/?export">
+          <div class="field">https://cal.keson.acab.love/keson/59727758-72c2-08cf-75dd-852c79fe3285/?export</div>
+          <button class="copy-btn" type="button">Copier</button>
+          <div class="ok">Copié ✅</div>
+        </div>
+        <p class="hint">Si <code>webcal://</code> ne s’ouvre pas, copiez l’URL ci-dessus puis : Réglages → Calendrier → Comptes → Ajouter → <strong>Calendrier abonné</strong>.</p>
+
+        <p style="margin-top:12px;"><strong>Lecture/Écriture (CalDAV authentifié)</strong></p>
+        <p class="hint">Réglages → Calendrier → Comptes → Ajouter un compte → <strong>Autre</strong> → <strong>Ajouter un compte CalDAV</strong>, avec :</p>
+        <span class="copy-label">Serveur</span>
+        <div class="copy-row" data-copy="cal.keson.acab.love">
+          <div class="field">cal.keson.acab.love</div>
+          <button class="copy-btn" type="button">Copier</button>
+          <div class="ok">Copié ✅</div>
+        </div>
+        <span class="copy-label">Utilisateur</span>
+        <div class="copy-row" data-copy="keson">
+          <div class="field">keson</div>
+          <button class="copy-btn" type="button">Copier</button>
+          <div class="ok">Copié ✅</div>
+        </div>
+        <span class="copy-label">Chemin (si demandé)</span>
+        <div class="copy-row" data-copy="/keson/59727758-72c2-08cf-75dd-852c79fe3285/">
+          <div class="field">/keson/59727758-72c2-08cf-75dd-852c79fe3285/</div>
+          <button class="copy-btn" type="button">Copier</button>
+          <div class="ok">Copié ✅</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Copy to clipboard for all .copy-row blocks
+    document.querySelectorAll('.copy-row').forEach(row => {
+      const btn = row.querySelector('.copy-btn');
+      const done = row.querySelector('.ok');
+      const field = row.querySelector('.field');
+      const value = row.getAttribute('data-copy') || field?.textContent?.trim() || '';
+
+      // Always show only the value that is copied (labels live above)
+      if (field) {
+        field.textContent = value;
+        field.setAttribute('title', value); // full value on long press / hover
+      }
+
+      btn?.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(value);
+          if (done) {
+            done.style.display = 'block';
+            setTimeout(() => { done.style.display = 'none'; }, 1400);
+          }
+        } catch (e) {
+          // Fallback: select the text so user can long-press copy
+          const sel = window.getSelection();
+          const range = document.createRange();
+          if (field && sel) {
+            range.selectNodeContents(field);
+            sel.removeAllRanges();
+            sel.addRange(range);
+          }
+          alert('Impossible de copier automatiquement. Le texte a été sélectionné, vous pouvez copier manuellement.');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

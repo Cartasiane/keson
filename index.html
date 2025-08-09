@@ -156,7 +156,7 @@ loader.load(MODEL_URL, (gltf) => {
   controls.enablePan = true; controls.autoRotate = false; controls.target.copy(group.position);
 
   // Phase color loop (unchanged behavior, materials improved)
-  let phase = 1; let step = 0; const TICK_MS = 1000; const STEPS_PER_CYCLE = colors.length;
+  let phase = 1; let step = 1; const TICK_MS = 1000; const STEPS_PER_CYCLE = colors.length;
   meshesWood.forEach(m => m.material = matWoodBlack);
 
   setInterval(() => {
@@ -181,7 +181,7 @@ loader.load(MODEL_URL, (gltf) => {
     } else if (phase === 3) {
       step++;
       if (step >= STEPS_PER_CYCLE) {
-        phase = 1; step = 0;
+        phase = 1; step = 1;
         matCycleNAUO5.color.setHex(colors[0]);
         meshesNAUO5.forEach(m => m.material = matCycleNAUO5);
         meshesWood.forEach(m  => m.material = matWoodBlack);

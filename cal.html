@@ -16,15 +16,47 @@
 
     /* Desktop / tablet */
     .page { padding: 10px; height: 100%; box-sizing: border-box; }
-    .calendar-card {
-      height: 100%;
-      background: #0b0f14;
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: 8px;
-      box-shadow: 0 4px 24px rgba(0,0,0,.35);
-      overflow: hidden;
-    }
-    .owc-frame { width: 100%; height: 100%; border: 0; background: #0b0f14; }
+      .calendar-card {
+        height: 100%;
+        background: #0b0f14;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 8px;
+        box-shadow: 0 4px 24px rgba(0,0,0,.35);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid rgba(255,255,255,.08);
+      }
+      .calendar-title {
+        margin: 0;
+        font-size: 1rem;
+      }
+      .owc-frame { flex: 1; width: 100%; border: 0; background: #0b0f14; }
+      .desktop-info-btn {
+        padding: .4rem .6rem;
+        border: 1px solid rgba(255,255,255,.16);
+        background: #121923;
+        color: #e6e6e6;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      dialog.desktop-info-dialog {
+        background: #0e141b;
+        border: 1px solid rgba(255,255,255,.16);
+        border-radius: 8px;
+        color: #e6e6e6;
+        padding: 1rem;
+        max-width: 340px;
+      }
+      dialog.desktop-info-dialog::backdrop {
+        background: rgba(0,0,0,0.6);
+      }
 
     /* Mobile helpers */
     .mobile-only { display: none; }
@@ -118,12 +150,31 @@
 <body>
   <main class="page">
     <!-- Desktop/Tablet calendar -->
-    <section class="calendar-card">
-      <iframe
-        class="owc-frame"
-        src="https://open-web-calendar.hosted.quelltext.eu/calendar.html?specification_url=https%3A%2F%2Fkeson.acab.love%2Fowc.json%3Fv%3D8&url=https%3A%2F%2Fcal.keson.acab.love%2Fkeson%2F59727758-72c2-08cf-75dd-852c79fe3285%2F&language=fr&timezone=Europe%2FZurich&start_of_week=mo&tab=month&tabs=month&tabs=week&tabs=day&controls=previous&controls=next&controls=today&controls=date">
-      </iframe>
-    </section>
+      <section class="calendar-card">
+        <div class="calendar-header">
+          <h1 class="calendar-title">Kalendrier</h1>
+          <button type="button" class="desktop-info-btn" id="desktop-info-btn">Config PC</button>
+        </div>
+        <iframe
+          class="owc-frame"
+          src="https://open-web-calendar.hosted.quelltext.eu/calendar.html?specification_url=https%3A%2F%2Fkeson.acab.love%2Fowc.json%3Fv%3D8&url=https%3A%2F%2Fcal.keson.acab.love%2Fkeson%2F59727758-72c2-08cf-75dd-852c79fe3285%2F&language=fr&timezone=Europe%2FZurich&start_of_week=mo&tab=month&tabs=month&tabs=week&tabs=day&controls=previous&controls=next&controls=today&controls=date">
+        </iframe>
+      </section>
+
+      <dialog class="desktop-info-dialog" id="desktop-info-dialog">
+        <h2>💻 Configurer sur ordinateur</h2>
+        <p>Utilisez ces réglages dans votre application de calendrier compatible CalDAV :</p>
+        <ul>
+          <li>URL : <code>https://cal.keson.acab.love/</code></li>
+          <li>Utilisateur : <code>keson</code></li>
+          <li>Chemin : <code>/keson/59727758-72c2-08cf-75dd-852c79fe3285/</code></li>
+        </ul>
+        <p>Lecture seule (abonnement) :</p>
+        <p><code>https://cal.keson.acab.love/keson/59727758-72c2-08cf-75dd-852c79fe3285/?export</code></p>
+        <form method="dialog" style="margin-top:1rem;text-align:right">
+          <button type="submit">Fermer</button>
+        </form>
+      </dialog>
 
     <!-- Mobile: helper UI -->
     <section class="mobile-only">
@@ -213,40 +264,44 @@
     </section>
   </main>
 
-  <script>
-    // Copy to clipboard for all .copy-row blocks
-    document.querySelectorAll('.copy-row').forEach(row => {
-      const btn = row.querySelector('.copy-btn');
-      const done = row.querySelector('.ok');
-      const field = row.querySelector('.field');
-      const value = row.getAttribute('data-copy') || field?.textContent?.trim() || '';
+    <script>
+      // Copy to clipboard for all .copy-row blocks
+      document.querySelectorAll('.copy-row').forEach(row => {
+        const btn = row.querySelector('.copy-btn');
+        const done = row.querySelector('.ok');
+        const field = row.querySelector('.field');
+        const value = row.getAttribute('data-copy') || field?.textContent?.trim() || '';
 
-      // Always show only the value that is copied (labels live above)
-      if (field) {
-        field.textContent = value;
-        field.setAttribute('title', value); // full value on long press / hover
-      }
-
-      btn?.addEventListener('click', async () => {
-        try {
-          await navigator.clipboard.writeText(value);
-          if (done) {
-            done.style.display = 'block';
-            setTimeout(() => { done.style.display = 'none'; }, 1400);
-          }
-        } catch (e) {
-          // Fallback: select the text so user can long-press copy
-          const sel = window.getSelection();
-          const range = document.createRange();
-          if (field && sel) {
-            range.selectNodeContents(field);
-            sel.removeAllRanges();
-            sel.addRange(range);
-          }
-          alert('Impossible de copier automatiquement. Le texte a été sélectionné, vous pouvez copier manuellement.');
+        // Always show only the value that is copied (labels live above)
+        if (field) {
+          field.textContent = value;
+          field.setAttribute('title', value); // full value on long press / hover
         }
+
+        btn?.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(value);
+            if (done) {
+              done.style.display = 'block';
+              setTimeout(() => { done.style.display = 'none'; }, 1400);
+            }
+          } catch (e) {
+            // Fallback: select the text so user can long-press copy
+            const sel = window.getSelection();
+            const range = document.createRange();
+            if (field && sel) {
+              range.selectNodeContents(field);
+              sel.removeAllRanges();
+              sel.addRange(range);
+            }
+            alert('Impossible de copier automatiquement. Le texte a été sélectionné, vous pouvez copier manuellement.');
+          }
+        });
       });
-    });
-  </script>
+
+      const desktopBtn = document.getElementById('desktop-info-btn');
+      const desktopDialog = document.getElementById('desktop-info-dialog');
+      desktopBtn?.addEventListener('click', () => desktopDialog.showModal());
+    </script>
 </body>
 </html>

@@ -7,7 +7,7 @@ Keson is a minimal static site with two parts:
 
 ## 3D Viewer
 - Loads `model.glb` with `GLTFLoader` and optimised meshes via `MeshoptDecoder`.
-- Generates procedural textures for a painted-wood effect and applies dynamic color cycling.
+- Applies dynamic color cycling across simple materials.
 - Uses `OrbitControls` for interaction and auto-rotates the model.
 - Includes a floating button linking to the calendar page.
 

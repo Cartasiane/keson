@@ -104,85 +104,11 @@ const matDarkGreyMetal = mat({ color: 0x444444, metalness: 0.8,  roughness: 0.3 
 const matBlackMetal    = mat({ color: 0x000000, metalness: 0.85, roughness: 0.25 });
 const matBlackPlastic  = mat({ color: 0x111111, metalness: 0.0,  roughness: 0.6 });
 
-// ===== painted-wood procedural maps (no external files) =====
-function createNoiseTexture(size = 256, contrast = 0.85) {
-  const c = document.createElement('canvas'); c.width = c.height = size;
-  const ctx = c.getContext('2d', { willReadFrequently: true });
-  const img = ctx.createImageData(size, size);
-  for (let i = 0; i < img.data.length; i += 4) {
-    const v = Math.random() * 255;
-    img.data[i] = img.data[i+1] = img.data[i+2] = v; img.data[i+3] = 255;
-  }
-  ctx.putImageData(img, 0, 0);
-  const tex = new THREE.CanvasTexture(c);
-  tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.anisotropy = 8; tex.generateMipmaps = true; tex.needsUpdate = true;
-  return tex;
-}
-
-function createBrushHeightTexture(size = 512, strokeDir = 0) {
-  const c = document.createElement('canvas'); c.width = c.height = size;
-  const ctx = c.getContext('2d');
-  ctx.fillStyle = '#808080'; ctx.fillRect(0, 0, size, size);
-  const strokes = Math.floor(size * 0.12);
-  for (let s = 0; s < strokes; s++) {
-    const x0 = Math.random() * size; const y0 = Math.random() * size;
-    const len = size * (0.8 + Math.random() * 0.4);
-    const w = 1 + Math.random() * 3; const amp = 2 + Math.random() * 6; const freq = 0.005 + Math.random() * 0.015;
-    ctx.save(); ctx.translate(x0, y0); ctx.rotate(strokeDir + (Math.random() * 0.2 - 0.1)); ctx.beginPath();
-    for (let t = 0; t < len; t++) { const x = t; const y = Math.sin(t * freq) * amp; t === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); }
-    const shade = 110 + Math.random() * 30; ctx.lineWidth = w; ctx.strokeStyle = `rgb(${shade},${shade},${shade})`; ctx.globalAlpha = 0.5; ctx.stroke(); ctx.restore();
-  }
-  const tex = new THREE.CanvasTexture(c);
-  tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.anisotropy = 8; tex.generateMipmaps = true; tex.needsUpdate = true; return tex;
-}
-
-function createGrainNormalLike(size = 256) {
-  const c = document.createElement('canvas'); c.width = c.height = size; const ctx = c.getContext('2d');
-  const img = ctx.createImageData(size, size);
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      const v = (Math.sin((x * 0.15) + Math.random() * 0.5) * 0.5 + 0.5) * 255; const i = (y * size + x) * 4;
-      img.data[i+0] = v; img.data[i+1] = 128; img.data[i+2] = 255 - v; img.data[i+3] = 255;
-    }
-  }
-  ctx.putImageData(img, 0, 0); const tex = new THREE.CanvasTexture(c);
-  tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.anisotropy = 8; tex.generateMipmaps = true; tex.needsUpdate = true; return tex;
-}
-
-const paintedNoise = createNoiseTexture(256, 0.85);      // roughnessMap
-const brushHeight  = createBrushHeightTexture(512, 0.0);  // bumpMap
-const grainNormal  = createGrainNormalLike(256);          // optional normal
-
-function makePaintedWood(color = 0x1e1e1e) {
-  const m = new THREE.MeshPhysicalMaterial({
-    color,
-    metalness: 0.0,
-    roughness: 0.68,
-    clearcoat: 0.05,
-    clearcoatRoughness: 0.4,
-    side: THREE.DoubleSide,
-  });
-  m.roughnessMap = paintedNoise;
-  m.bumpMap = brushHeight; m.bumpScale = 0.0025;
-  m.normalMap = grainNormal; m.normalScale = new THREE.Vector2(0.15, 0.3);
-  const REP = 3.0;
-  for (const t of [m.roughnessMap, m.bumpMap, m.normalMap]) { if (!t) continue; t.repeat.set(REP, REP * 1.6); t.needsUpdate = true; }
-  return m;
-}
-
-function randomizePaintUV(material, strength = 0.25) {
-  const tx = material.roughnessMap || material.bumpMap || material.normalMap; if (!tx) return;
-  const off = new THREE.Vector2((Math.random() - 0.5) * strength, (Math.random() - 0.5) * strength);
-  tx.offset.add(off); tx.rotation = (Math.random() - 0.5) * 0.35; tx.needsUpdate = true;
-  if (material.bumpMap && material.bumpMap !== tx) { material.bumpMap.offset.copy(tx.offset); material.bumpMap.rotation = tx.rotation; }
-  if (material.normalMap && material.normalMap !== tx) { material.normalMap.offset.copy(tx.offset); material.normalMap.rotation = tx.rotation; }
-}
-
 // ===== colors & materials =====
 const colors = [0x60b502, 0xf8e503, 0xe081f5, 0xfd3f4b];
 const matCycleNAUO5 = new THREE.MeshStandardMaterial({ color: colors[0], metalness: 0.0, roughness: 0.65, side: THREE.DoubleSide });
-const matWoodBlack  = makePaintedWood(0x1e1e1e);
-const matCycleWOOD  = makePaintedWood(colors[0]);
+const matWoodBlack  = mat({ color: 0x1e1e1e, metalness: 0.0, roughness: 0.68 });
+const matCycleWOOD  = mat({ color: colors[0], metalness: 0.0, roughness: 0.68 });
 
 let meshesNAUO5 = [];
 let meshesWood  = [];
@@ -229,11 +155,8 @@ loader.load(MODEL_URL, (gltf) => {
   controls.rotateSpeed = 0.8; controls.zoomSpeed = 1.0; controls.panSpeed = 0.6;
   controls.enablePan = true; controls.autoRotate = false; controls.target.copy(group.position);
 
-  // Randomize UV transforms a little so parts don't look identical
-  meshesWood.forEach((m) => randomizePaintUV(m.material));
-
   // Phase color loop (unchanged behavior, materials improved)
-  let phase = 1; let step = 0; const TICK_MS = 1000; const STEPS_PER_CYCLE = colors.length;
+  let phase = 1; let step = 1; const TICK_MS = 1000; const STEPS_PER_CYCLE = colors.length;
   meshesWood.forEach(m => m.material = matWoodBlack);
 
   setInterval(() => {
@@ -258,7 +181,7 @@ loader.load(MODEL_URL, (gltf) => {
     } else if (phase === 3) {
       step++;
       if (step >= STEPS_PER_CYCLE) {
-        phase = 1; step = 0;
+        phase = 1; step = 1;
         matCycleNAUO5.color.setHex(colors[0]);
         meshesNAUO5.forEach(m => m.material = matCycleNAUO5);
         meshesWood.forEach(m  => m.material = matWoodBlack);
